@@ -57,26 +57,33 @@
   # par2 multicore guide
   # https://forums.sabnzbd.org/viewtopic.php?f=16&t=18793#p99702
 
-- name: Yenc --> Extract file
-  unarchive:
-    src: "{{ sab_yenc_link }}"
-    dest: "/tmp"
-    copy: no
-  sudo: yes
+# - name: Yenc --> Extract file
+#   unarchive:
+#     src: "{{ sab_yenc_link }}"
+#     dest: "/tmp"
+#     copy: no
+#   sudo: yes
 
-- name:     Yenc --> Build
-  command:  python setup.py build
-  args:
-    chdir: "/tmp/{{ sab_yenc_name }}"
+# - name:     Yenc --> Build
+#   command:  python setup.py build
+#   args:
+#     chdir: "/tmp/{{ sab_yenc_name }}"
 
-- name:     Yenc --> Install
-  command:  python setup.py install
-  args:
-    chdir: "/tmp/{{ sab_yenc_name }}"
+# - name:     Yenc --> Install
+#   command:  python setup.py install
+#   args:
+#     chdir: "/tmp/{{ sab_yenc_name }}"
 
-- name: Yenc --> Remove files
-  file: path="/tmp/{{ sab_yenc_name }}"
-        state=absent
+# - name: Yenc --> Remove files
+#   file: path="/tmp/{{ sab_yenc_name }}"
+#         state=absent
+
+- name: Install Pip Modules
+  command: "pip install {{ item }} --upgrade"
+  with_items:
+    - sabyenc
+    - cryptography
+  become: true
 
   #pyOpenSSL
 - name: pyOpenSSL --> Download file
@@ -96,18 +103,22 @@
 
 - block:
 
-    - name: Get the latest backup file
-      command: "ls {{ sab_backup_target }} -t | head -1"
-      register: result_backup_file
+    - name: Get files from sab_backup_target
+      find:
+        paths: "{{ sab_backup_target }}"
+      register: found_files
+
+    - name: Get latest backup file
+      set_fact:
+        __sab_restore_file: "{{ found_files.files | sort(attribute='mtime',reverse=true) | first  }}"
 
     - name: Set Fact for sab_restore_file
       set_fact:
-        sab_restore_file: "{{ sab_backup_target }}/{{ result_backup_file.stdout_lines }}"
+        sab_restore_file: "{{ __sab_restore_file.path }}"
 
   when:
     - sab_restore_from_backups
-    # - not sab_restore_file is defined
-
+    
 - name: Restore Backup --> Extract archive
   unarchive:
     src: "{{ sab_restore_file }}"
@@ -131,8 +142,5 @@
   template: src=sabnzbd.service.j2
             dest=/etc/systemd/system/sabnzbd.service
             owner=root group=root mode=0644
-
-- name: Enable service
-  service:  name=sabnzbd.service
-            enabled=yes
-            state=started
+  notify:
+    - start sab

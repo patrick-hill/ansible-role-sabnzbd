@@ -4,7 +4,7 @@
   register: check_installed
 
 - name: CentOS Install
-  include: "centos.yml"
+  include: "install.yml"
   when:
     - ansible_distribution == 'CentOS'
     - check_installed.stat.exists == False
