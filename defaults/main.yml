@@ -20,4 +20,4 @@ sab_backup_script_dir:  "{{ sab_script_dir }}"
 sab_backup_command:     tar -cpzf
 sab_backup_filename:    sabnzbd-`date \+%Y\%m\%d-%T`.tar.gz
 sab_backup_sources:     "*"
-sab_backup_target:      "{{ install_dir }}/_backups"
+sab_backup_target:      "{{ install_dir }}/_backups/sabnzbd"
