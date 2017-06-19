@@ -57,25 +57,13 @@
   # par2 multicore guide
   # https://forums.sabnzbd.org/viewtopic.php?f=16&t=18793#p99702
 
-# Yenc
-- name: Yenc --> Download file
-  get_url:
-    url: "{{ sab_yenc_link }}"
-    dest: "/tmp/{{ sab_yenc_filename }}"
-    validate_certs: False
-  register: downloaded_yenc
-  
 - name: Yenc --> Extract file
   unarchive:
-    src: "/tmp/{{ sab_yenc_filename }}"
+    src: "{{ sab_yenc_link }}"
     dest: "/tmp"
     copy: no
   sudo: yes
   when: downloaded_yenc|changed
-  
-- name: Yenc --> Remove download file
-  file: path="/tmp/{{ sab_yenc_filename }}"
-        state=absent
 
 - name:     Yenc --> Build
   command:  python setup.py build
@@ -104,20 +92,32 @@
   file: dest={{ sab_config_dir }}
         state=directory
         recurse=yes
+        owner="{{ stack_user }}"
+        group="{{ stack_user_group }}"
+
+- block:
+
+    - name: Get the latest backup file
+      command: "ls {{ sab_backup_target }}/sabnzbd -t | head -1"
+      register: result_backup_file
+
+    - name: Set Fact for sab_restore_file
+      set_fact:
+        sab_restore_file: "{{ sab_backup_target }}/{{ result_backup_file.stdout_lines }}"
+
+  when:
+    - sab_restore_from_backup
+    # - not sab_restore_file is defined
 
 - name: Restore Backup --> Extract archive
   unarchive:
     src: "{{ sab_restore_file }}"
     dest: "{{ sab_config_dir }}"
     copy: no
+    owner: "{{ stack_user }}"
+    group: "{{ stack_user_group }}"
   sudo: yes
   when: sab_restore_file is defined
-
-- name: Set dir owner
-  file: dest="{{ install_dir }}"
-        owner={{ stack_user }}
-        group={{ stack_user_group }}
-        recurse=yes
 
 - name: Enable port on firewall
   command: "{{ item }}"
