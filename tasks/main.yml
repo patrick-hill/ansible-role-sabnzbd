@@ -12,3 +12,14 @@
   when:
     - ansible_distribution == 'CentOS'
     - sab_backups_enabled
+
+- name: Update
+  git:
+    repo: "{{ sab_repo }}"
+    dest: "{{ sab_install_dir }}"
+    version: master
+    update: yes
+  when:
+    - ansible_distribution == 'CentOS'
+    - check_installed.stat.exists
+    - sab_allow_update

@@ -8,6 +8,7 @@ sab_yenc_filename: "{{ sab_yenc_name }}.tar.gz"
 sab_yenc_link: "http://www.golug.it/pub/yenc/{{ sab_yenc_filename }}"
 
 sab_repo: https://github.com/sabnzbd/sabnzbd.git
+sab_allow_update: true
 
 # Backup Script
 sab_backup_script_dir: "{{ install_dir }}/_backups/scritps"
