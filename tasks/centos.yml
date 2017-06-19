@@ -105,7 +105,7 @@
         sab_restore_file: "{{ sab_backup_target }}/{{ result_backup_file.stdout_lines }}"
 
   when:
-    - sab_restore_from_backup
+    - sab_restore_from_backups
     # - not sab_restore_file is defined
 
 - name: Restore Backup --> Extract archive
