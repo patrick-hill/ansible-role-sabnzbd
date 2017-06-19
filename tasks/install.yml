@@ -2,19 +2,39 @@
 # Guides:
   #: http://www.digitesters.com/install-sabnzbd-on-centos-7/
 
-- name: Create download dirs
-  file: dest="{{ sab_download_dir }}/{{ item }}"
+- name: Create Group
+  group:
+    name: "{{ sab_group }}"
+    system: no
+    state: present 
+  become: true
+
+- name: Create User
+  user:
+    name: "{{ sab_user }}"
+    group: "{{ sab_group }}"
+    state: present
+    system: no
+    createhome: no
+    shell: /bin/false
+  become: true
+
+- name: Create dirs
+  file: dest="{{ item }}"
         state=directory
         recurse=yes
-        owner={{ stack_user }}
-        group={{ stack_user_group }}
+        owner={{ sab_user }}
+        group={{ sab_group }}
   with_items:
-      - complete/movies
-      - complete/tvshows
-      - complete/music
-      - incomplete
-      - nzb_watched
-      - nzb_backup
+    - "{{ sab_download_dir }}/complete/movies"
+    - "{{ sab_download_dir }}/complete/tvshows"
+    - "{{ sab_download_dir }}/complete/music"
+    - "{{ sab_download_dir }}/incomplete"
+    - "{{ sab_download_dir }}/nzb_watched"
+    - "{{ sab_download_dir }}/nzb_backup"
+    - "{{ sab_install_dir }}"
+    - "{{ sab_config_dir }}"
+  become: true
 
 - name: Install prerequisites
   yum:  pkg={{ item }}
@@ -69,13 +89,6 @@
   git:  repo="{{ sab_repo }}"
         dest={{ sab_install_dir }}
 
-- name: Create data dir
-  file: dest={{ sab_config_dir }}
-        state=directory
-        recurse=yes
-        owner="{{ stack_user }}"
-        group="{{ stack_user_group }}"
-
 - block:
 
     - name: Get files from sab_backup_target
@@ -99,8 +112,8 @@
     src: "{{ sab_restore_file }}"
     dest: "{{ sab_config_dir }}"
     copy: no
-    owner: "{{ stack_user }}"
-    group: "{{ stack_user_group }}"
+    owner: "{{ sab_user }}"
+    group: "{{ sab_group }}"
   become: yes
   when: sab_restore_file is defined
 

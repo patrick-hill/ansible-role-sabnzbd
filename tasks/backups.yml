@@ -7,8 +7,8 @@
 - name: Create backup dir
   file: path={{ sab_backup_target }}
         state=directory
-        owner=root
-        group=root
+        owner="{{ sab_user }}"
+        group="{{ sab_group }}"
   when: backup_dir.stat.exists == False
 
 - name: Stat backup script dir
@@ -18,15 +18,15 @@
 - name: Create backup script dir
   file: path={{ sab_backup_script_dir }}
         state=directory
-        owner=root
-        group=root
+        owner="{{ sab_user }}"
+        group="{{ sab_group }}"
   when: backup_script_dir.stat.exists == False
 
 - name: Create backup script
   template: src=sabnzbd_backup.sh.j2
             dest="{{ sab_backup_script_dir }}/sabnzbd_backup.sh"
-            owner=root
-            group=root
+            owner="{{ sab_user }}"
+            group="{{ sab_group }}"
             mode="a+x"
 
 - name: Create cron backup
