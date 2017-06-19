@@ -97,7 +97,7 @@
 - block:
 
     - name: Get the latest backup file
-      command: "ls {{ sab_backup_target }}/sabnzbd -t | head -1"
+      command: "ls {{ sab_backup_target }} -t | head -1"
       register: result_backup_file
 
     - name: Set Fact for sab_restore_file
