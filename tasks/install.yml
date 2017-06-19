@@ -57,38 +57,13 @@
   # par2 multicore guide
   # https://forums.sabnzbd.org/viewtopic.php?f=16&t=18793#p99702
 
-# - name: Yenc --> Extract file
-#   unarchive:
-#     src: "{{ sab_yenc_link }}"
-#     dest: "/tmp"
-#     copy: no
-#   sudo: yes
-
-# - name:     Yenc --> Build
-#   command:  python setup.py build
-#   args:
-#     chdir: "/tmp/{{ sab_yenc_name }}"
-
-# - name:     Yenc --> Install
-#   command:  python setup.py install
-#   args:
-#     chdir: "/tmp/{{ sab_yenc_name }}"
-
-# - name: Yenc --> Remove files
-#   file: path="/tmp/{{ sab_yenc_name }}"
-#         state=absent
-
 - name: Install Pip Modules
   command: "pip install {{ item }} --upgrade"
   with_items:
     - sabyenc
     - cryptography
+    - pyopenssl
   become: true
-
-  #pyOpenSSL
-- name: pyOpenSSL --> Download file
-  command: pip install pyopenssl
-  sudo: yes
 
 - name: Clone repo
   git:  repo="{{ sab_repo }}"
@@ -126,7 +101,7 @@
     copy: no
     owner: "{{ stack_user }}"
     group: "{{ stack_user_group }}"
-  sudo: yes
+  become: yes
   when: sab_restore_file is defined
 
 - name: Enable port on firewall
@@ -135,7 +110,7 @@
     - firewall-cmd --permanent --add-port=8080/tcp  # HTTP port
     - firewall-cmd --permanent --add-port=9090/tcp  # HTTPS port
     - firewall-cmd --reload
-  sudo: yes
+  become: yes
   when: firewall_enabled
 
 - name: Add service
