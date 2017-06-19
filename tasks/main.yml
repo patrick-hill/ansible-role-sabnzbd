@@ -16,11 +16,7 @@
     - sab_backups_enabled
 
 - name: Update
-  git:
-    repo: "{{ sab_repo }}"
-    dest: "{{ sab_install_dir }}"
-    version: master
-    update: yes
+  include: "upgrade.yml"
   when:
     - ansible_distribution == 'CentOS'
     - check_installed.stat.exists

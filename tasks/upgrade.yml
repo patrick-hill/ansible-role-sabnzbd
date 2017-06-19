@@ -1,0 +1,10 @@
+---
+
+- name: Update
+  git:
+    repo: "{{ sab_repo }}"
+    dest: "{{ sab_install_dir }}"
+    version: master
+    update: yes
+  notify:
+    - restart sab
