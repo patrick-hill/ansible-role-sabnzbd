@@ -20,11 +20,12 @@
   become: true
 
 - name: Create dirs
-  file: dest="{{ item }}"
-        state=directory
-        recurse=yes
-        owner={{ sab_user }}
-        group={{ sab_group }}
+  file:
+    dest: "{{ item }}"
+    state: directory
+    recurse: yes
+    owner: "{{ sab_user }}"
+    group: "{{ sab_group }}"
   with_items:
     - "{{ sab_download_dir }}/complete/movies"
     - "{{ sab_download_dir }}/complete/tvshows"
@@ -37,9 +38,10 @@
   become: true
 
 - name: Install prerequisites
-  yum:  pkg={{ item }}
-        state=installed
-        update_cache=yes
+  yum:
+    pkg: "{{ item }}"
+    state: installed
+    update_cache: yes
   with_items:
       # Common
       - wget
@@ -78,7 +80,9 @@
   # https://forums.sabnzbd.org/viewtopic.php?f=16&t=18793#p99702
 
 - name: Install Pip Modules
-  command: "pip install {{ item }} --upgrade"
+  pip:
+    name: "{{ item }}"
+    state: latest
   with_items:
     - sabyenc
     - cryptography
@@ -86,8 +90,17 @@
   become: true
 
 - name: Clone repo
-  git:  repo="{{ sab_repo }}"
-        dest={{ sab_install_dir }}
+  git:
+    repo: "{{ sab_repo }}"
+    dest: "{{ sab_install_dir }}"
+
+- name: Take Ownership of Git Repo
+  file:
+    path: "{{ sab_install_dir }}"
+    owner: "{{ sab_user }}"
+    group: "{{ sab_group }}"
+    recurse: true
+  become: true
 
 - block:
 
@@ -111,9 +124,9 @@
   unarchive:
     src: "{{ sab_restore_file }}"
     dest: "{{ sab_config_dir }}"
-    copy: no
     owner: "{{ sab_user }}"
     group: "{{ sab_group }}"
+    remote_src: yes
   become: yes
   when: sab_restore_file is defined
 
@@ -127,8 +140,11 @@
   when: sab_firewall_enabled
 
 - name: Add service
-  template: src=sabnzbd.service.j2
-            dest=/etc/systemd/system/sabnzbd.service
-            owner=root group=root mode=0644
+  template:
+    src: sabnzbd.service.j2
+    dest: /etc/systemd/system/sabnzbd.service
+    owner: root
+    group: root
+    mode: '0644'
   notify:
     - start sab

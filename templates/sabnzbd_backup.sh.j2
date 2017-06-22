@@ -8,7 +8,13 @@ backup_filename={{ sab_backup_filename }}
 backup_dir={{ sab_config_dir }}
 backup_source={{ sab_backup_sources }}
 backup_target={{ sab_backup_target }}
-backup_excludes={{ sab_backup_excludes }}
+backup_excludes="{{ sab_backup_excludes }}"
 
 cd $backup_dir
-$archive_command $backup_excludes $archive_command_args $backup_target/$backup_filename $backup_source
+cmd="$archive_command $backup_excludes $archive_command_args $backup_target/$backup_filename $backup_source"
+echo ''
+echo "Command is: $cmd"
+eval $cmd
+
+echo 'Done'
+exit 0

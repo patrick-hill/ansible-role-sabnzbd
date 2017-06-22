@@ -11,14 +11,25 @@
   include: "backups.yml"
   when: sab_backups_enabled
 
-- name: Update
-  git:
-    repo: "{{ sab_repo }}"
-    dest: "{{ sab_install_dir }}"
-    version: master
-    update: yes
-  notify:
-    - restart sab
+- block:
+    - name: Update
+      git:
+        repo: "{{ sab_repo }}"
+        dest: "{{ sab_install_dir }}"
+        version: master
+        update: yes
+      ignore_errors: true
+      
+    - name: Take Ownership of Git Repo
+      file:
+        path: "{{ sab_install_dir }}"
+        owner: "{{ sab_user }}"
+        group: "{{ sab_group }}"
+        recurse: true
+      become: true
+      notify:
+        - restart sab
+
   when:
     - check_installed.stat.exists
     - sab_allow_update
