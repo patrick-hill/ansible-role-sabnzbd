@@ -124,7 +124,7 @@
     - firewall-cmd --permanent --add-port=9090/tcp  # HTTPS port
     - firewall-cmd --reload
   become: yes
-  when: firewall_enabled
+  when: sab_firewall_enabled
 
 - name: Add service
   template: src=sabnzbd.service.j2

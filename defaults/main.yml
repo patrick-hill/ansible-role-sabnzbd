@@ -14,6 +14,8 @@ sab_restore_file: ''
 sab_repo: https://github.com/sabnzbd/sabnzbd.git
 sab_allow_update: true
 
+sab_firewall_enabled: false
+
 # Backup Script
 sab_backups_enabled:    false
 sab_backup_script_dir:  "{{ sab_script_dir }}"
