@@ -19,7 +19,9 @@ sab_firewall_enabled: false
 # Backup Script
 sab_backups_enabled:    false
 sab_backup_script_dir:  "{{ sab_script_dir }}"
-sab_backup_command:     tar -cpzf
-sab_backup_filename:    sabnzbd-`date \+%Y\%m\%d-%T`.tar.gz
+sab_backup_command:     'GZIP=-9 tar'
+sab_backup_command_args: '-cpzf'
+sab_backup_filename:    sabnzbd-`date \+%Y-\%m-\%d__\%H-\%M-\%S`
 sab_backup_sources:     "*"
 sab_backup_target:      "/_backups/sabnzbd"
+sab_backup_excludes:    "--exclude=logs"

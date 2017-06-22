@@ -3,10 +3,12 @@
 # Script is used to backup sensitive files to a compressed file
 
 archive_command="{{ sab_backup_command }}"
+archive_command_args={{ sab_backup_command_args }}
 backup_filename={{ sab_backup_filename }}
 backup_dir={{ sab_config_dir }}
 backup_source={{ sab_backup_sources }}
 backup_target={{ sab_backup_target }}
+backup_excludes={{ sab_backup_excludes }}
 
 cd $backup_dir
-$archive_command $backup_target/$backup_filename $backup_source
+$archive_command $backup_excludes $archive_command_args $backup_target/$backup_filename $backup_source
